@@ -1,0 +1,14 @@
+value_screener_venv/*
+*.csv
+*.xlsx
+__pycache__/
+*.py[cod]
+*$py.class
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+data/
+.idea/*
+*logs*
+
