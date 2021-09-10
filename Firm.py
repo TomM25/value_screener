@@ -1,4 +1,4 @@
-import numpy as np
+import pandas as pd
 from datetime import date
 
 from get_financial_report import get_financial_report
@@ -10,36 +10,59 @@ class Firm:
         self.market = market
         self.read_data_dir = read_data_dir
         self.write_data_dir = write_data_dir
+        self.income = get_financial_report('income', ticker, market, read_data_dir, write_data_dir)
+        self.balance = get_financial_report('balance', ticker, market, read_data_dir, write_data_dir)
+        self.cash_flow = get_financial_report('cashflow', ticker, market, read_data_dir, write_data_dir)
 
-    def get_firm_reports(self):
-        incomes = get_financial_report('income', self.ticker, self.market, self.read_data_dir, self.write_data_dir)
-        balances = get_financial_report('balance', self.ticker, self.market, self.read_data_dir, self.write_data_dir)
-        cash_flows = get_financial_report('cashflow', self.ticker, self.market, self.read_data_dir, self.write_data_dir)
-        setattr(self, 'incomes', incomes)
-        setattr(self, 'balances', balances)
-        setattr(self, 'cash_flows', cash_flows)
+    def get_latest_report_year(self, report_kind: str):
+        if report_kind not in ['income', 'balance', 'cash_flow']:
+            raise ValueError(f"A report named {report_kind} does not exist")
+        report = getattr(self, report_kind)
+        return report[report['Fiscal Year'] == report['Fiscal Year'].max()]['Fiscal Year'].values[0]
+
+    def get_latest_annual_data(self, report_kind: str, column: str, years_back: int):
+        latest_year = self.get_latest_report_year(report_kind)
+        earliest_year = latest_year - years_back
+        report = getattr(self, report_kind)
+        return report[report['Fiscal Year'] > earliest_year][column].values
 
     def get_last_revenue(self):
-        latest_incomes_publish = \
-        self.incomes[self.incomes['Publish Date'] == self.incomes['Publish Date'].max()]['Publish Date'].values[0]
-        latest_revenue = self.incomes[self.incomes['Publish Date'] == latest_incomes_publish]['Revenue'].values[0]
-        return latest_revenue
+        return self.get_latest_annual_data(report_kind='income', column='Revenue', years_back=1)
 
     def last_revenue_test(self):
-        return True if self.get_last_revenue() > (350 * 10 ^ 6) else False
+        return self.get_last_revenue() > (350 * 10 ^ 6)
 
-    def get_negative_profits_last_five(self):
-        today = date.today()
-        curr_year = today.year
-        lowest_profit = min(self.incomes[self.incomes['Fiscal Year'] > (curr_year - 5)]['Net Income (Common)'].values)
-        return True if lowest_profit < 0 else False
+    def get_last_profits(self, years_back=5):
+        return self.get_latest_annual_data(report_kind='income', column='Net Income (Common)', years_back=years_back)
+
+    def positive_last_profits_test(self, years_back=5):
+        # Was the profit constantly positive during the time period?
+        # TODO ask Yotam if this is relevant
+        lowest_profit = min(self.get_last_profits(years_back=years_back))
+        return lowest_profit > 0
+
+    def consistent_profits_growth_test(self, years_back=5):
+        # Was the profit growth constantly positive during the time period?
+        profits = self.get_last_profits(years_back=years_back)
+        for index, profit in enumerate(profits[:-1]):
+            if profits[index + 1] < profit:
+                return False
+        return True
+
+    def get_profits_growth(self, years_back=4):
+        # TODO verify computation with Yotam
+        profits = self.get_last_profits(years_back=years_back)
+        return ((profits[-1] + profits[-2])/(profits[-3] + profits[-4])) - 1
+
+    def profits_growth_test(self, years_back=4, threshold=0.3):
+        # Is the profit growth higher than the threshold
+        return self.get_profits_growth(years_back=years_back) > threshold
 
 
 
 
 
 if __name__ == '__main__':
-    a_firm = Firm('A', read_data_dir=r'data')
-    a_firm.get_firm_reports()
-    blah = a_firm.get_last_revenue()
-    print("blah")
+    a_firm = Firm('AAPL', read_data_dir=r'data')
+    blah = a_firm.profits_growth_test()
+    print('a')
