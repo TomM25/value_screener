@@ -1,6 +1,3 @@
-import pandas as pd
-from datetime import date
-
 from get_financial_report import get_financial_report
 
 
@@ -13,6 +10,7 @@ class Firm:
         self.income = get_financial_report('income', ticker, market, read_data_dir, write_data_dir)
         self.balance = get_financial_report('balance', ticker, market, read_data_dir, write_data_dir)
         self.cash_flow = get_financial_report('cashflow', ticker, market, read_data_dir, write_data_dir)
+        self.curr_share_price = get_financial_report('shareprices', ticker, market, read_data_dir, write_data_dir, variant='latest')
 
     def get_latest_report_year(self, report_kind: str):
         if report_kind not in ['income', 'balance', 'cash_flow']:
@@ -55,14 +53,5 @@ class Firm:
         return ((profits[-1] + profits[-2])/(profits[-3] + profits[-4])) - 1
 
     def profits_growth_test(self, years_back=4, threshold=0.3):
-        # Is the profit growth higher than the threshold
+        # Is the profit growth rate higher than the threshold
         return self.get_profits_growth(years_back=years_back) > threshold
-
-
-
-
-
-if __name__ == '__main__':
-    a_firm = Firm('AAPL', read_data_dir=r'data')
-    blah = a_firm.profits_growth_test()
-    print('a')
