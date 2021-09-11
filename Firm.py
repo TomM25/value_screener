@@ -1,4 +1,5 @@
 from get_financial_report import get_financial_report
+from config import display
 
 
 class Firm:
@@ -106,10 +107,13 @@ class Firm:
         # Is the working capital higher than the long term liabilities?
         return self.get_working_capital() > self.get_long_term_liabilities()
 
-    # def Benjamin_Graham_tests_report(self):
+    # def generate_firm_report(self):
     #     df_list = list()
-    #     for test in ['last_revenue', 'profits_growth', 'earning_multiplier', 'current_ratio', 'equity_earnings',
-    #                  'working_capital_long_term_liabilities']:
+    #     for investor in display.keys():
+    #         for test in investor_tests:
+    #             for display_func in test['display_functions']:
+    #                 firm_func = getattr(self, display_func)
+    #             test_dict = {'Test_description': test['description']}
 
 
 # if __name__ == '__main__':
