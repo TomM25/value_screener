@@ -32,3 +32,5 @@ display = {
             'display_functions_desc': ['long_term_liabilities', 'working_capital']
         }
     }}
+
+investor_threshold = {'Benjamin Graham': {'buy': 0.82, 'hold': 0.65}}

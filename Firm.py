@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from get_financial_report import get_financial_report
-from config import display
+from config import display, investor_threshold
 
 
 class Firm:
@@ -111,11 +111,23 @@ class Firm:
         return self.get_working_capital() > self.get_long_term_liabilities()
 
     @staticmethod
-    def summarize_investor_test(df: pd.DataFrame):
-        investor_pass_count = df.groupby('investor')['test_passed'].sum()
+    def check_investor_threshold(value, investor: str):
+        if value > investor_threshold[investor]['buy']:
+            return 'buy'
+        elif value > investor_threshold[investor]['hold']:
+            return 'hold'
+        else:
+            return 'sell'
+
+    def summarize_investor_test(self, df: pd.DataFrame):
+        investor_pass_count = df.groupby('investor')['test_passed'].sum().rename('investor_test_pass_rate')
         for investor in df['investor'].unique():
             investor_test_num = len(df[df['investor'] == investor])
-        return 'blah'
+            investor_pass_count.at[investor] /= investor_test_num
+        df = pd.merge(left=df, right=investor_pass_count, how='left', left_on='investor', right_on='investor')
+        df['investor_recommendation'] = df.apply(
+            lambda row: self.check_investor_threshold(row['investor_test_pass_rate'], row['investor']), axis=1)
+        return df
 
     def generate_firm_report(self):
         df_list = list()
@@ -137,6 +149,7 @@ class Firm:
                 test_dict.update({'related_values': desc_dict})
                 df_list.append(test_dict)
         summary_df = pd.DataFrame(df_list)
+        summary_df = self.summarize_investor_test(summary_df)
         return summary_df
 
 
