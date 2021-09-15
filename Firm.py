@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 from get_financial_report import get_financial_report
 from config import display
 
@@ -26,10 +29,10 @@ class Firm:
         return report[report['Fiscal Year'] > earliest_year][column].values
 
     def get_last_revenue(self):
-        return self.get_latest_annual_data(report_kind='income', column='Revenue', years_back=1)
+        return self.get_latest_annual_data(report_kind='income', column='Revenue', years_back=1)[0]
 
     def last_revenue_test(self):
-        return self.get_last_revenue() > (350 * 10 ^ 6)
+        return bool(self.get_last_revenue() > (350 * 10 ^ 6))
 
     def get_last_profits(self, years_back: int=5):
         return self.get_latest_annual_data(report_kind='income', column='Net Income (Common)', years_back=years_back)
@@ -65,12 +68,12 @@ class Firm:
         return profit / shares_num
 
     def get_earnings_multiplier(self):
-        curr_price = self.curr_share_data['Close']
+        curr_price = self.curr_share_data['Close'].values[0]
         return curr_price / self.get_eps()
 
     def earnings_multiplier_test(self, threshold: float=15.0):
         # Is the multiplier lower than a defined threshold
-        if not isinstance(threshold, int) or isinstance(threshold, float):
+        if not (isinstance(threshold, int) or isinstance(threshold, float)):
             return ValueError(f"Threshold arg must be numeric. The argument that was passed is {threshold}")
         return self.get_earnings_multiplier() < threshold
 
@@ -87,7 +90,7 @@ class Firm:
 
     def get_equity_multiplier(self):
         total_assets = self.get_latest_annual_data(report_kind='balance', column='Total Assets', years_back=1)[0]
-        total_liabilities = self.get_latest_annual_data(report_kind='balance', column='Total Assets', years_back=1)[0]
+        total_liabilities = self.get_latest_annual_data(report_kind='balance', column='Total Liabilities', years_back=1)[0]
         shareholders_equity = total_assets - total_liabilities
         return total_assets / shareholders_equity
 
@@ -107,17 +110,38 @@ class Firm:
         # Is the working capital higher than the long term liabilities?
         return self.get_working_capital() > self.get_long_term_liabilities()
 
-    # def generate_firm_report(self):
-    #     df_list = list()
-    #     for investor in display.keys():
-    #         for test in investor_tests:
-    #             for display_func in test['display_functions']:
-    #                 firm_func = getattr(self, display_func)
-    #             test_dict = {'Test_description': test['description']}
+    @staticmethod
+    def summarize_investor_test(df: pd.DataFrame):
+        investor_pass_count = df.groupby('investor')['test_passed'].sum()
+        for investor in df['investor'].unique():
+            investor_test_num = len(df[df['investor'] == investor])
+        return 'blah'
+
+    def generate_firm_report(self):
+        df_list = list()
+        for investor in display.keys():
+            for test in display[investor]:
+                test_dict = dict()
+                desc_dict = dict()
+                test_func_name = '_'.join(test.split()) + '_test'
+                test_func = getattr(self, test_func_name)
+                test_passed = test_func()
+                test_dict.update({'investor': investor, 'test_name': test, 'description': display[investor][test]['description'],
+                                  'test_passed': test_passed})
+                for idx, display_func in enumerate(display[investor][test]['display_functions']):
+                    test_disp_func = getattr(self, display_func)
+                    disp_func_val = test_disp_func()
+                    if isinstance(disp_func_val, np.ndarray):
+                        disp_func_val = list(disp_func_val)
+                    desc_dict.update({display[investor][test]['display_functions_desc'][idx]: disp_func_val})
+                test_dict.update({'related_values': desc_dict})
+                df_list.append(test_dict)
+        summary_df = pd.DataFrame(df_list)
+        return summary_df
 
 
-# if __name__ == '__main__':
-#     apple = Firm(ticker='AAPL', read_data_dir='data')
-#     # curr_ratio = apple.get_current_ratio()
-#     test = apple.working_capital_long_term_liabilities_test()
-#     print("blah")
+if __name__ == '__main__':
+    apple = Firm(ticker='AAPL', read_data_dir='data')
+    # curr_ratio = apple.get_current_ratio()
+    test = apple.generate_firm_report()
+    print("blah")
