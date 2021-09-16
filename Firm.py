@@ -34,11 +34,11 @@ class Firm:
         else:
             return values
 
-    def get_last_revenue(self):
-        return self.get_latest_annual_data(report_kind='income', column='Revenue', years_back=1)
+    def get_last_revenues(self, years_back: int=1):
+        return self.get_latest_annual_data(report_kind='income', column='Revenue', years_back=years_back)
 
     def last_revenue_test(self):
-        return bool(self.get_last_revenue() > (350 * 10 ^ 6))
+        return bool(self.get_last_revenues() > (350 * 10 ^ 6))
 
     def get_last_profits(self, years_back: int=5):
         return self.get_latest_annual_data(report_kind='income', column='Net Income (Common)', years_back=years_back)
@@ -249,6 +249,28 @@ class Firm:
         else:
             return False
 
+    def get_last_inventories(self, years_back: int=2):
+        return self.get_latest_annual_data(report_kind='balance', column='Inventories', years_back=years_back)
+
+    def get_inventories_revenue_ratio(self, years_back: int=2):
+        revenues = self.get_last_revenues(years_back=years_back)
+        inventories = self.get_last_inventories(years_back=years_back)
+        return inventories / revenues
+
+    def get_inventories_revenue_growth(self):
+        ratio_array = self.get_inventories_revenue_ratio(years_back=2)
+        return (ratio_array[0] / ratio_array[1]) - 1
+
+    def inventories_revenue_growth_test(self, threshold: float=0.05):
+        growth_rate = self.get_inventories_revenue_growth()
+        return growth_rate < threshold
+
+    def get_two_years_profits(self):
+        return self.get_last_profits(years_back=2)
+
+    def positive_last_two_profits_test(self):
+        return np.min(self.get_two_years_profits()) > 0
+
     @staticmethod
     def check_investor_threshold(value, investor: str):
         if value > investor_threshold[investor]['buy']:
@@ -295,5 +317,5 @@ class Firm:
 if __name__ == '__main__':
     apple = Firm(ticker='AAPL', read_data_dir='data')
     # curr_ratio = apple.get_current_ratio()
-    test = apple.lynch_profits_growth_test()
+    test = apple.generate_firm_report()
     print("blah")

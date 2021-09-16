@@ -3,7 +3,7 @@ display = {
     'Benjamin Graham': {
         'last revenue': {
             'description': 'Sales revenue > 350M',
-            'display_functions': ['get_last_revenue'],
+            'display_functions': ['get_last_revenues'],
             'display_functions_desc': ['Last revenue']
         },
         'profits growth': {
@@ -78,9 +78,19 @@ display = {
         'lynch_profits_growth': {
             'description': "If both the average growth (5 years) and the last growth are over 0.2 - pass. If they're both over"
                            "0.1, pass only if last year's growth is higher than the average growth. Else - fail.",
-            'display_functions': ['get_avg_profits_growth', 'get_last_profits_growth_rate'],
+            'display_functions': ['get_avg_profit_growth', 'get_last_profits_growth_rate'],
             'display_functions_desc': ['Average profits growth rate of the last 5 years',
                                        "last year's profits growth rate"]
+        },
+        'inventories_revenue_growth': {
+            'description': 'Growth of inventories to revenue ratio this year lower than 0.05',
+            'display_functions': ['get_inventories_revenue_ratio', 'get_inventories_revenue_growth'],
+            'display_functions_desc': ['Inventories to revenue ratios of last 2 years', 'Inventories to revenue ratio growth']
+        },
+        'positive_last_two_profits': {
+            'description': 'Positive profits for the last two years',
+            'display_functions': ['get_two_years_profits'],
+            'display_functions_desc': ["Last two years' profits"]
         }
     }
 }
