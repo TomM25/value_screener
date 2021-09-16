@@ -62,14 +62,18 @@ class Firm:
         profits = self.get_last_profits(years_back=5)
         return ((profits[0] + profits[-1])/(profits[-2] + profits[-3])) - 1
 
-    def get_avg_profit_growth(self, years_back=5):
+    def get_profits_growth_array(self, years_back: int=5):
         growth_list = list()
         profits = self.get_last_profits(years_back=5)
         for index, profit in enumerate(profits[:-1]):
             ratio = (profits[index] / profits[index + 1])
             percentage = ratio - 1 if ratio > 0 else ratio + 1
             growth_list.append(percentage)
-        return np.mean(growth_list)
+        return np.array(growth_list)
+
+    def get_avg_profit_growth(self, years_back=5):
+        growth_array = self.get_profits_growth_array(years_back=years_back)
+        return np.mean(growth_array)
 
     def profits_growth_test(self, threshold: float=0.3):
         # Is the profit growth rate higher than the threshold
@@ -229,6 +233,22 @@ class Firm:
     def debt_equity_ratio_test(self, threshold: float=0.8):
         return self.get_debt_equity_ratio() < threshold
 
+    def get_last_profits_growth_rate(self):
+        return self.get_profits_growth_array()[0]
+
+    def lynch_profits_growth_test(self, years_back: int=5):
+        avg_profits_growth = self.get_avg_profit_growth(years_back=years_back)
+        last_profits_growth = self.get_last_profits_growth_rate()
+        if avg_profits_growth > 0.2 and last_profits_growth > 0.2:
+            return True
+        elif avg_profits_growth > 0.1 and last_profits_growth > 0.1:
+            if last_profits_growth > avg_profits_growth:
+                return True
+            else:
+                return False
+        else:
+            return False
+
     @staticmethod
     def check_investor_threshold(value, investor: str):
         if value > investor_threshold[investor]['buy']:
@@ -275,5 +295,5 @@ class Firm:
 if __name__ == '__main__':
     apple = Firm(ticker='AAPL', read_data_dir='data')
     # curr_ratio = apple.get_current_ratio()
-    test = apple.generate_firm_report()
+    test = apple.lynch_profits_growth_test()
     print("blah")

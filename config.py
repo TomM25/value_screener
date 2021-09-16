@@ -74,6 +74,13 @@ display = {
             'description': 'Debt to equity ratio lower than 0.8',
             'display_functions': ['get_debt_equity_ratio', 'get_shareholders_equity', 'get_net_debt'],
             'display_functions_desc': ['Debt to equity ratio', 'Shareholders equity', 'Net debt']
+        },
+        'lynch_profits_growth': {
+            'description': "If both the average growth (5 years) and the last growth are over 0.2 - pass. If they're both over"
+                           "0.1, pass only if last year's growth is higher than the average growth. Else - fail.",
+            'display_functions': ['get_avg_profits_growth', 'get_last_profits_growth_rate'],
+            'display_functions_desc': ['Average profits growth rate of the last 5 years',
+                                       "last year's profits growth rate"]
         }
     }
 }
