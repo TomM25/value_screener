@@ -91,6 +91,13 @@ display = {
             'description': 'Positive profits for the last two years',
             'display_functions': ['get_two_years_profits'],
             'display_functions_desc': ["Last two years' profits"]
+        },
+        'lynch_profit_revenue': {
+            'description': "If last 5 years' average profits growth rate over 0.2, pass if revenue is bigger than 1B."
+                           "If last 5 years' average profits growth rate positive, pass if revenue is bigger than 1.9B."
+                           "Else fail.",
+            'display_functions': ['get_avg_profit_growth', 'get_last_revenues'],
+            'display_functions_desc': ["Last 5 years' average profits growth rate", "Last revenue"]
         }
     }
 }

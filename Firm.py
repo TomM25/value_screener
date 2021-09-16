@@ -64,7 +64,7 @@ class Firm:
 
     def get_profits_growth_array(self, years_back: int=5):
         growth_list = list()
-        profits = self.get_last_profits(years_back=5)
+        profits = self.get_last_profits(years_back=years_back)
         for index, profit in enumerate(profits[:-1]):
             ratio = (profits[index] / profits[index + 1])
             percentage = ratio - 1 if ratio > 0 else ratio + 1
@@ -270,6 +270,16 @@ class Firm:
 
     def positive_last_two_profits_test(self):
         return np.min(self.get_two_years_profits()) > 0
+
+    def lynch_profit_revenue_test(self, years_back: int=5):
+        avg_profits_growth = self.get_avg_profit_growth(years_back=years_back)
+        revenue = self.get_last_revenues(years_back=1)
+        if avg_profits_growth > 0.2:
+            return revenue > (1000 * 10 ^ 6)
+        elif avg_profits_growth > 0:
+            return revenue > (1900 * 10 ^ 6)
+        else:
+            return False
 
     @staticmethod
     def check_investor_threshold(value, investor: str):
