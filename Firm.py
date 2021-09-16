@@ -26,7 +26,10 @@ class Firm:
         latest_year = self.get_latest_report_year(report_kind)
         earliest_year = latest_year - years_back
         report = getattr(self, report_kind)
-        return report[report['Fiscal Year'] > earliest_year][column].values
+        report.sort_values(by='Fiscal Year', ascending=False, inplace=True)
+        values = report[report['Fiscal Year'] > earliest_year][column].values
+        values = np.nan_to_num(values, nan=0)
+        return values
 
     def get_last_revenue(self):
         return self.get_latest_annual_data(report_kind='income', column='Revenue', years_back=1)[0]
@@ -98,17 +101,52 @@ class Firm:
         # Is the product of the earnings multiplier and the equity multiplier lower than a defined threshold
         return (self.get_earnings_multiplier() * self.get_equity_multiplier()) < threshold
 
-    def get_working_capital(self):
-        current_assets = self.get_latest_annual_data(report_kind='balance', column='Total Current Assets', years_back=1)[0]
-        current_liabilities  = self.get_latest_annual_data(report_kind='balance', column='Total Current Liabilities', years_back=1)[0]
+    def get_working_capital(self, years_back=1):
+        current_assets = self.get_latest_annual_data(report_kind='balance', column='Total Current Assets', years_back=years_back)[:years_back]
+        current_liabilities = self.get_latest_annual_data(report_kind='balance', column='Total Current Liabilities', years_back=years_back)[:years_back]
         return current_assets - current_liabilities
+
+    def get_delta_working_capital(self):
+        working_capital = self.get_working_capital(years_back=2)
+        return working_capital[0] - working_capital[1]
 
     def get_long_term_liabilities(self):
         return self.get_latest_annual_data(report_kind='balance', column='Total Noncurrent Liabilities', years_back=1)[0]
 
     def working_capital_long_term_liabilities_test(self):
         # Is the working capital higher than the long term liabilities?
-        return self.get_working_capital() > self.get_long_term_liabilities()
+        return bool(self.get_working_capital()[0] > self.get_long_term_liabilities())
+
+    def get_tax_rate(self):
+        pre_tax_income = self.get_latest_annual_data(report_kind='income', column='Pretax Income (Loss)', years_back=1)[0]
+        income_tax_expense = self.get_latest_annual_data(report_kind='income', column='Income Tax (Expense) Benefit, Net',
+                                                         years_back=1)[0]
+        return ((-1) * income_tax_expense) / pre_tax_income
+
+    def get_nopat(self):
+        tax_rate = self.get_tax_rate()
+        operating_income = self.get_latest_annual_data(report_kind='income', column='Operating Income (Loss)',
+                                                         years_back=1)[0]
+        return operating_income * (1-tax_rate)
+
+    def get_capex(self):
+        depreciation_amortization = \
+        self.get_latest_annual_data(report_kind='income', column='Depreciation & Amortization',
+                                    years_back=1)[0]
+        PPE = self.get_latest_annual_data(report_kind='balance', column='Property, Plant & Equipment, Net',
+                                          years_back=2)
+        return PPE[0] - PPE[1] + depreciation_amortization
+
+    def get_fcff(self):
+        nopat = self.get_nopat()
+        depreciation_amortization = self.get_latest_annual_data(report_kind='income', column='Depreciation & Amortization',
+                                                                years_back=1)[0]
+        capex = self.get_capex()
+        delta_working_capital = self.get_delta_working_capital()
+        return nopat + depreciation_amortization - capex - delta_working_capital
+
+    def positive_fcff_test(self):
+        return self.get_fcff() > 0
 
     @staticmethod
     def check_investor_threshold(value, investor: str):
@@ -156,5 +194,5 @@ class Firm:
 if __name__ == '__main__':
     apple = Firm(ticker='AAPL', read_data_dir='data')
     # curr_ratio = apple.get_current_ratio()
-    test = apple.generate_firm_report()
+    test = apple.positive_fcff_test()
     print("blah")
