@@ -53,14 +53,23 @@ class Firm:
         # Was the profit growth constantly positive during the time period?
         profits = self.get_last_profits(years_back=years_back)
         for index, profit in enumerate(profits[:-1]):
-            if (profit < 0) or (profits[index + 1] < profit):
+            if (profit < 0) or (profits[index + 1] > profit):
                 return False
         return True
 
     def get_4_years_profits_growth(self):
         # TODO verify computation with Yotam
-        profits = self.get_last_profits(years_back=4)
-        return ((profits[-1] + profits[-2])/(profits[-3] + profits[-4])) - 1
+        profits = self.get_last_profits(years_back=5)
+        return ((profits[0] + profits[-1])/(profits[-2] + profits[-3])) - 1
+
+    def get_avg_profit_growth(self, years_back=5):
+        growth_list = list()
+        profits = self.get_last_profits(years_back=5)
+        for index, profit in enumerate(profits[:-1]):
+            ratio = (profits[index] / profits[index + 1])
+            percentage = ratio - 1 if ratio > 0 else ratio + 1
+            growth_list.append(percentage)
+        return np.mean(growth_list)
 
     def profits_growth_test(self, threshold: float=0.3):
         # Is the profit growth rate higher than the threshold
@@ -73,9 +82,11 @@ class Firm:
         profit = self.get_last_profits(years_back=1)
         return profit / shares_num
 
+    def get_current_stock_price(self):
+        return self.curr_share_data['Close'].values[0]
+
     def get_earnings_multiplier(self):
-        curr_price = self.curr_share_data['Close'].values[0]
-        return curr_price / self.get_eps()
+        return self.get_current_stock_price() / self.get_eps()
 
     def earnings_multiplier_test(self, threshold: float=15.0):
         # Is the multiplier lower than a defined threshold
@@ -194,6 +205,29 @@ class Firm:
 
     def profits_growth_to_surplus_test(self, threshold: float=0.12):
         return self.get_profits_growth_to_surplus() > threshold
+
+    def get_pe_ratio(self):
+        return self.get_current_stock_price() / self.get_eps()
+
+    def get_peg_ratio(self):
+        return self.get_pe_ratio() / self.get_avg_profit_growth()
+
+    def peg_ratio_test(self, threshold: float=1.0):
+        return self.get_peg_ratio() < threshold
+
+    def get_net_debt(self):
+        short_term_debt = self.get_latest_annual_data(report_kind='balance', column='Short Term Debt', years_back=1)
+        long_term_debt = self.get_latest_annual_data(report_kind='balance', column='Long Term Debt', years_back=1)
+        cash_and_equivalents = self.get_latest_annual_data(report_kind='balance',
+                                                           column='Cash, Cash Equivalents & Short Term Investments',
+                                                           years_back=1)
+        return short_term_debt + long_term_debt - cash_and_equivalents
+
+    def get_debt_equity_ratio(self):
+        return self.get_net_debt() / self.get_shareholders_equity()
+
+    def debt_equity_ratio_test(self, threshold: float=0.8):
+        return self.get_debt_equity_ratio() < threshold
 
     @staticmethod
     def check_investor_threshold(value, investor: str):

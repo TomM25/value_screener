@@ -63,8 +63,21 @@ display = {
             'display_functions': ['get_last_year_net_income_growth', 'get_retained_earnings'],
             'display_functions_desc': ["Last year's net income growth", "Retained earnings"]
         }
+    },
+    'Peter Lynch': {
+        'peg_ratio': {
+            'description': 'PEG ratio lower than 1',
+            'display_functions': ['get_peg_ratio'],
+            'display_functions_desc': ['PEG ratio']
+        },
+        'debt_equity_ratio': {
+            'description': 'Debt to equity ratio lower than 0.8',
+            'display_functions': ['get_debt_equity_ratio', 'get_shareholders_equity', 'get_net_debt'],
+            'display_functions_desc': ['Debt to equity ratio', 'Shareholders equity', 'Net debt']
+        }
     }
 }
 
 investor_threshold = {'Benjamin Graham': {'buy': 0.82, 'hold': 0.65},
-                      'Warren Buffet': {'buy': 0.82, 'hold': 0.65}}
+                      'Warren Buffet': {'buy': 0.82, 'hold': 0.65},
+                      'Peter Lynch': {'buy': 0.82, 'hold': 0.65}}
