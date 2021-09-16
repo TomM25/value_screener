@@ -110,8 +110,8 @@ class Firm:
         return (self.get_earnings_multiplier() * self.get_equity_multiplier()) < threshold
 
     def get_working_capital(self, years_back: int=1):
-        current_assets = self.get_latest_annual_data(report_kind='balance', column='Total Current Assets', years_back=years_back)[:years_back]
-        current_liabilities = self.get_latest_annual_data(report_kind='balance', column='Total Current Liabilities', years_back=years_back)[:years_back]
+        current_assets = self.get_latest_annual_data(report_kind='balance', column='Total Current Assets', years_back=years_back)
+        current_liabilities = self.get_latest_annual_data(report_kind='balance', column='Total Current Liabilities', years_back=years_back)
         return current_assets - current_liabilities
 
     def get_delta_working_capital(self):
@@ -123,7 +123,7 @@ class Firm:
 
     def working_capital_long_term_liabilities_test(self):
         # Is the working capital higher than the long term liabilities?
-        return bool(self.get_working_capital()[0] > self.get_long_term_liabilities())
+        return bool(self.get_working_capital() > self.get_long_term_liabilities())
 
     def get_tax_rate(self):
         pre_tax_income = self.get_latest_annual_data(report_kind='income', column='Pretax Income (Loss)', years_back=1)
@@ -241,5 +241,5 @@ class Firm:
 if __name__ == '__main__':
     apple = Firm(ticker='AAPL', read_data_dir='data')
     # curr_ratio = apple.get_current_ratio()
-    test = apple.profits_growth_to_surplus_test()
+    test = apple.generate_firm_report()
     print("blah")
