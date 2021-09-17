@@ -289,8 +289,18 @@ class Firm:
     def market_cap_test(self, threshold: int=150000000):
         return self.get_market_cap() > threshold
 
+    def get_market_cap_revenue(self):
+        return self.get_market_cap() / self.get_last_revenues()
+
     def market_cap_revenue_test(self, threshold: float=1.5):
-        return (self.get_market_cap() / self.get_last_revenues()) < threshold
+        return self.get_market_cap_revenue() < threshold
+
+    def get_market_cap_revenue_entire_market(self):
+        # TODO ask Yotam where to find this data and replace the constant
+        return 2.28
+
+    def market_cap_revenue_market_comparison_test(self):
+        return self.get_market_cap_revenue() < self.get_market_cap_revenue_entire_market()
 
     @staticmethod
     def check_investor_threshold(value, investor: str):
@@ -338,5 +348,5 @@ class Firm:
 if __name__ == '__main__':
     apple = Firm(ticker='AAPL', read_data_dir='data')
     # curr_ratio = apple.get_current_ratio()
-    test = apple.market_cap_revenue_test()
+    test = apple.generate_firm_report()
     print("blah")

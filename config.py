@@ -103,17 +103,28 @@ display = {
     "James P. O'shaughnessy": {
         'market_cap': {
             'description': 'Market cap higher than 150M',
-            'display_functions': 'get_market_cap',
-            'display_functions_desc': 'Market cap'
+            'display_functions': ['get_market_cap'],
+            'display_functions_desc': ['Market cap']
         },
         'market_cap_revenue': {
             'description': 'Market cap over revenue lower than 1.5',
-            'display_functions': ['get_market_cap', 'get_last_revenues'],
-            'display_functions_desc': ['Market cap', 'Revenue']
+            'display_functions': ['get_market_cap', 'get_last_revenues', 'get_market_cap_revenue'],
+            'display_functions_desc': ['Market cap', 'Revenue', 'Market cap to revenue ratio']
+        },
+        'consistent_profits_growth': {
+            'description': 'EPS is constantly growing in the last 5 years, and is not negative',
+            'display_functions': ['get_last_profits'],
+            'display_functions_desc': ['Last 5 years common profit']
+        },
+        'market_cap_revenue_market_comparison': {
+            'description': "Market cap to revenue lower than the market's market cap to revenue",
+            'display_functions': ['get_market_cap_revenue', 'get_market_cap_revenue_entire_market'],
+            'display_functions_desc': ['Market cap to revenue ratio', 'Market cap to revenue entire market ratio']
         }
     }
 }
 
 investor_threshold = {'Benjamin Graham': {'buy': 0.82, 'hold': 0.65},
                       'Warren Buffet': {'buy': 0.82, 'hold': 0.65},
-                      'Peter Lynch': {'buy': 0.82, 'hold': 0.65}}
+                      'Peter Lynch': {'buy': 0.82, 'hold': 0.65},
+                      "James P. O'shaughnessy": {'buy': 0.74, 'hold': 0.49}}
