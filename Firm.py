@@ -281,6 +281,17 @@ class Firm:
         else:
             return False
 
+    def get_market_cap(self):
+        stock_price = self.get_current_stock_price()
+        stocks_num = self.curr_share_data['Shares Outstanding'].values[0]
+        return stock_price * stocks_num
+
+    def market_cap_test(self, threshold: int=150000000):
+        return self.get_market_cap() > threshold
+
+    def market_cap_revenue_test(self, threshold: float=1.5):
+        return (self.get_market_cap() / self.get_last_revenues()) < threshold
+
     @staticmethod
     def check_investor_threshold(value, investor: str):
         if value > investor_threshold[investor]['buy']:
@@ -327,5 +338,5 @@ class Firm:
 if __name__ == '__main__':
     apple = Firm(ticker='AAPL', read_data_dir='data')
     # curr_ratio = apple.get_current_ratio()
-    test = apple.generate_firm_report()
+    test = apple.market_cap_revenue_test()
     print("blah")

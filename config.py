@@ -99,6 +99,18 @@ display = {
             'display_functions': ['get_avg_profit_growth', 'get_last_revenues'],
             'display_functions_desc': ["Last 5 years' average profits growth rate", "Last revenue"]
         }
+    },
+    "James P. O'shaughnessy": {
+        'market_cap': {
+            'description': 'Market cap higher than 150M',
+            'display_functions': 'get_market_cap',
+            'display_functions_desc': 'Market cap'
+        },
+        'market_cap_revenue': {
+            'description': 'Market cap over revenue lower than 1.5',
+            'display_functions': ['get_market_cap', 'get_last_revenues'],
+            'display_functions_desc': ['Market cap', 'Revenue']
+        }
     }
 }
 
