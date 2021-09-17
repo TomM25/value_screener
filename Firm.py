@@ -6,6 +6,40 @@ from config import display, investor_threshold
 
 
 class Firm:
+    """
+    Represents a publicly traded firm. This class reads the firm's last annual financial
+    statements (income statement, balance sheet and cashflow statement) and some basic
+    data about the firm's stock value from Simfin's API. Using this data, it allows the
+    calculation of financial metrics and relations, to help decide whether the firm's
+    stock should be bought, sold, or held. To summarize the calculations, it allows
+    generating a conclusive report.
+    The metrics and relations in the report are all based on benchmarks that were defined
+    by famous investors: Benjamin Graham, Warren Buffet, Peter Lynch and James P
+    O'shaughnessy.
+    Methods that start with the word 'get' are used to calculate a ratio or a metric.
+    Methods that end with the word 'test' are used to check if the stock is attractive
+    according to a specific benchmark, and return a boolean value.
+
+    Attributes
+    ----------
+    ticker: str
+        The firm's ticker
+    market: str
+        The market where the firm is traded
+    read_data_dir: str (default=None)
+        A path from which the data will be read. Use this argument in case that you already read the data from Simfin's
+        API, and have it locally stored.
+    write_data_dir: str (default='data')
+        A path to a directory where the data from Simfin's API will be written to once downloaded.
+
+    Methods
+    ---------
+    generate_firm_report()
+        Generates a report with financial ratios and metrics for the firm, including buy/
+        sell/hold recommendations according to famous investors' benchmarks.
+
+
+    """
     def __init__(self, ticker: str, market: str='us', read_data_dir=None, write_data_dir='data'):
         self.ticker = ticker
         self.market = market
@@ -321,7 +355,16 @@ class Firm:
             lambda row: self.check_investor_threshold(row['investor_test_pass_rate'], row['investor']), axis=1)
         return df
 
-    def generate_firm_report(self):
+    def generate_firm_report(self) -> pd.DataFrame:
+        '''
+        Generate a conclusive report about the firm, including the display of
+        financial metrics and relations, based on Benchmarks that were defined
+        by famous investors.
+
+        Returns
+        ---------
+            report (pd.DataFrame): A conclusive report about the firm
+        '''
         df_list = list()
         for investor in display.keys():
             for test in display[investor]:
@@ -346,7 +389,7 @@ class Firm:
 
 
 if __name__ == '__main__':
-    apple = Firm(ticker='AAPL', read_data_dir='data')
+    apple = Firm(ticker='AAPL') #, read_data_dir='data'
     # curr_ratio = apple.get_current_ratio()
     test = apple.generate_firm_report()
     print("blah")
