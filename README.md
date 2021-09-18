@@ -15,15 +15,11 @@ This module uses the SimFin Python API to retrieve firms' last annual financial
 <br>**Important note #2** - For now, this module only analyzes annual reports. In the future, we might add features to
     support analyzing the quarterly reports.
 
-##Usage
+## Usage
 The Firm class holds all the attributes and methods required for the analysis.
     An instance of this class represents a publicly traded firm. Once instantiated, the object reads the firm's last 
     annual financial statements (income statement, balance sheet and cash flow statement), and some basic data about the
-    firm's stock value from Simfin's API. Using this data, it allows the calculation of financial metrics and relations,
-    to help decide whether the firm's stock should be bought, sold, or held.
-    To summarize the calculations, it allows generating a conclusive report. The metrics and relations in the report are
-    all based on benchmarks that were defined by famous investors: Benjamin Graham, Warren Buffet, Peter Lynch and James
-    P O'shaughnessy.
+    firm's stock value from Simfin's API.
 <br>**To analyze a firm, we recommend using the generate_firm_report method of the Firm class**. All the rest of the methods in this
     class are being called under the hood to create the report. The generated report is a Python Pandas DataFrame object.
     Each row in the dataframe is a benchmark used by one of the famous investors to asses whether a stock is an
@@ -35,6 +31,13 @@ The Firm class holds all the attributes and methods required for the analysis.
     and will return a boolean value.
 
 ## Usage example
-`# Instantiating  
-Apple = Firm(ticker='AAPL', market='us', write_data_dir='data')`  
-`Apple_report = Apple.generate_firm_report()`
+    # Instantiate a class instance
+    Apple = Firm(ticker='AAPL', market='us', write_data_dir='data')
+    # Generate a detailed report
+    Apple_report = Apple.generate_firm_report()
+
+Once instantiating the class, the whole financial reports dataset is being read to your local disk. At the next
+    time you call it, you can use the read_data_dir attribute to read the data from disk instead of the API:
+
+    # Instantiate a class instance using locally stored data:
+    Amazon = Firm(ticker='AMZN', market='us', read_data_dir='data')
