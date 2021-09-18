@@ -83,7 +83,6 @@ class Firm:
         return lowest_profit > 0
 
     def consistent_profits_growth_test(self, years_back: int=5):
-        # Was the profit growth constantly positive during the time period?
         profits = self.get_last_profits(years_back=years_back)
         for index, profit in enumerate(profits[:-1]):
             if (profit < 0) or (profits[index + 1] > profit):
@@ -151,7 +150,6 @@ class Firm:
         return total_assets / shareholders_equity
 
     def equity_earnings_test(self, threshold: float=22.0):
-        # Is the product of the earnings multiplier and the equity multiplier lower than a defined threshold
         return (self.get_earnings_multiplier() * self.get_equity_multiplier()) < threshold
 
     def get_working_capital(self, years_back: int=1):
