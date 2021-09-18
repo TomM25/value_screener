@@ -1,12 +1,12 @@
 # region display
-display = {
+display_tests = {
     'Benjamin Graham': {
-        'last revenue': {
+        'last_revenue': {
             'description': 'Sales revenue > 350M',
             'display_functions': ['get_last_revenues'],
             'display_functions_desc': ['Last revenue']
         },
-        'profits growth': {
+        'profits_growth': {
             'description': '30% profits growth and not negative in the last 5 years',
             'display_functions': ['get_last_profits', 'get_4_years_profits_growth'],
             'display_functions_desc': ['5 last profits', 'Profits growth last four years']

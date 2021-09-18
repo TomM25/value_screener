@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from get_financial_report import get_financial_report
-from config import display, investor_threshold
+from config import display_tests, investor_threshold
 
 
 class Firm:
@@ -78,7 +78,6 @@ class Firm:
         return self.get_latest_annual_data(report_kind='income', column='Net Income (Common)', years_back=years_back)
 
     def positive_last_profits_test(self, years_back: int=5):
-        # Was the profit constantly positive during the time period?
         # TODO ask Yotam if this is relevant
         lowest_profit = min(self.get_last_profits(years_back=years_back))
         return lowest_profit > 0
@@ -110,7 +109,6 @@ class Firm:
         return np.mean(growth_array)
 
     def profits_growth_test(self, threshold: float=0.3):
-        # Is the profit growth rate higher than the threshold
         if not self.consistent_profits_growth_test(years_back=5):
             return False
         return self.get_4_years_profits_growth() > threshold
@@ -127,7 +125,6 @@ class Firm:
         return self.get_current_stock_price() / self.get_eps()
 
     def earnings_multiplier_test(self, threshold: float=15.0):
-        # Is the multiplier lower than a defined threshold
         if not (isinstance(threshold, int) or isinstance(threshold, float)):
             return ValueError(f"Threshold arg must be numeric. The argument that was passed is {threshold}")
         return self.get_earnings_multiplier() < threshold
@@ -140,7 +137,6 @@ class Firm:
         return current_assets / current_liabilities
 
     def current_ratio_test(self, threshold: float=2):
-        # Is the current ratio higher than a defined threshold
         return self.get_current_ratio() > threshold
 
     def get_shareholders_equity(self, years_back: int=1):
@@ -171,7 +167,6 @@ class Firm:
         return self.get_latest_annual_data(report_kind='balance', column='Total Noncurrent Liabilities', years_back=1)
 
     def working_capital_long_term_liabilities_test(self):
-        # Is the working capital higher than the long term liabilities?
         return bool(self.get_working_capital() > self.get_long_term_liabilities())
 
     def get_tax_rate(self):
@@ -366,30 +361,23 @@ class Firm:
             report (pd.DataFrame): A conclusive report about the firm
         '''
         df_list = list()
-        for investor in display.keys():
-            for test in display[investor]:
+        for investor in display_tests.keys():
+            for test in display_tests[investor]:
                 test_dict = dict()
                 desc_dict = dict()
                 test_func_name = '_'.join(test.split()) + '_test'
                 test_func = getattr(self, test_func_name)
                 test_passed = test_func()
-                test_dict.update({'investor': investor, 'test_name': test, 'description': display[investor][test]['description'],
+                test_dict.update({'investor': investor, 'test_name': test, 'description': display_tests[investor][test]['description'],
                                   'test_passed': test_passed})
-                for idx, display_func in enumerate(display[investor][test]['display_functions']):
+                for idx, display_func in enumerate(display_tests[investor][test]['display_functions']):
                     test_disp_func = getattr(self, display_func)
                     disp_func_val = test_disp_func()
                     if isinstance(disp_func_val, np.ndarray):
                         disp_func_val = list(disp_func_val)
-                    desc_dict.update({display[investor][test]['display_functions_desc'][idx]: disp_func_val})
+                    desc_dict.update({display_tests[investor][test]['display_functions_desc'][idx]: disp_func_val})
                 test_dict.update({'related_values': desc_dict})
                 df_list.append(test_dict)
         summary_df = pd.DataFrame(df_list)
         summary_df = self.summarize_investor_test(summary_df)
         return summary_df
-
-
-if __name__ == '__main__':
-    apple = Firm(ticker='AAPL') #, read_data_dir='data'
-    # curr_ratio = apple.get_current_ratio()
-    test = apple.generate_firm_report()
-    print("blah")
