@@ -330,6 +330,24 @@ class Firm:
         return self.get_market_cap_revenue() < self.get_market_cap_revenue_entire_market()
 
     @staticmethod
+    def format_numbers(num):
+        if num > 1000000:
+            num_millions = int(round((num / 1000000)))
+            num_millions_str = "{:,}".format(num_millions)
+            return f"{num_millions_str}M"
+        elif isinstance(num, float):
+            return round(num, 3)
+        else:
+            return num
+
+    @staticmethod
+    def format_related_values(val):
+        if isinstance(val, np.ndarray) or isinstance(val, list):
+            return [Firm.format_numbers(num) for num in val]
+        else:
+            return Firm.format_numbers(val)
+
+    @staticmethod
     def check_investor_threshold(value, investor: str):
         if value > investor_threshold[investor]['buy']:
             return 'buy'
@@ -373,9 +391,18 @@ class Firm:
                     disp_func_val = test_disp_func()
                     if isinstance(disp_func_val, np.ndarray):
                         disp_func_val = list(disp_func_val)
-                    desc_dict.update({display_tests[investor][test]['display_functions_desc'][idx]: disp_func_val})
+                    desc_dict.update({display_tests[investor][test]['display_functions_desc'][
+                                          idx]: self.format_related_values(disp_func_val)})
+                    # for key, val in desc_dict.items():
+                    #     desc_dict[key] = self.format_related_values(val)
                 test_dict.update({'related_values': desc_dict})
                 df_list.append(test_dict)
         summary_df = pd.DataFrame(df_list)
         summary_df = self.summarize_investor_test(summary_df)
         return summary_df
+
+
+if __name__ == '__main__':
+    apple = Firm(ticker='AAPL', market='us', read_data_dir='data')
+    df = apple.generate_firm_report()
+    print("blah")

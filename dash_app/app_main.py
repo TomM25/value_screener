@@ -9,6 +9,7 @@ from dash.dependencies import Input, Output, State
 
 from Firm import Firm
 from utils.logger import get_logger
+from config import investor_threshold
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -47,10 +48,12 @@ app.layout = dbc.Container(html.Div(
                                             dbc.Tab(label="James P. O'shaughnessy", tab_id="James P. O'shaughnessy")
                                         ],
                                         id="tabs",
-                                        active_tab="Graham"
+                                        active_tab="Benjamin Graham"
                                     ),
                           html.Div(id="tab-content", className="p-4"),
-                          dcc.Store(id='firm-report')
+                          html.Div(id="tab-summary", className="p-4", style={'margin': 'auto', 'text-align': 'center',
+                                                                             'font-size': '30px'}),
+                          dcc.Store(id="firm-report")
 
 ]
 ))
@@ -74,9 +77,9 @@ def get_full_report(n_clicks, ticker_input, market_input):
 
 
 @app.callback(
-    Output("tab_content", "children"),
+    Output("tab-content", "children"),
     Input("tabs", "active_tab"),
-    State("firm_report", "data")
+    Input("firm-report", "data")
     )
 def render_investor_report(investor, firm_report):
     logger.info(f"Rendering {investor}'s tab")
@@ -84,8 +87,37 @@ def render_investor_report(investor, firm_report):
         logger.info(f"Fetching {investor}'s report")
         report_json = json.loads(firm_report)
         report_df = pd.DataFrame.from_dict(report_json)
-        return dash_table.DataTable(report_df[report_df['investor'] == investor])
+        investor_df = report_df[report_df['investor'] == investor]
+        investor_df['related_values'] = investor_df['related_values'].astype('str')
+        investor_df.drop(columns=['investor', 'test_name', 'investor_test_pass_rate', 'investor_recommendation'],
+                         inplace=True)
+        investor_df.rename(columns={'description': 'Test description', 'test_passed': 'Test passed?',
+                                    'related_values': 'Related values'}, inplace=True)
+        return dash_table.DataTable(id="table", columns=[{"name": i, "id": i} for i in investor_df.columns],
+                                    data=investor_df.to_dict('records'), style_cell={'text-align': 'left'})
+
+
+@app.callback(
+    Output("tab-summary", "children"),
+    Input("tab-content", "children"),
+    Input("firm-report", "data"),
+    State("tabs", "active_tab")
+    )
+def summarize_investor_tests(data_table, firm_report, investor):
+    if not pd.isnull(data_table) and not pd.isnull(firm_report):
+        report_df = pd.DataFrame.from_dict(json.loads(firm_report))
+        investor_df = report_df[report_df['investor'] == investor]
+        investor_pass_rate = investor_df['investor_test_pass_rate'].values[0]
+        investor_thresholds = investor_threshold[investor]
+        if investor_pass_rate > investor_thresholds['buy']:
+            return html.P([f"Investor tests pass rate: {investor_pass_rate}", html.Br(), f"Investor recommendation: Buy"])
+
+        elif investor_pass_rate > investor_thresholds['hold']:
+            return html.P([f"Investor tests pass rate: {investor_pass_rate}", html.Br(), f"Investor recommendation: Hold"])
+
+        else:
+            return html.P([f"Investor tests pass rate: {investor_pass_rate}", html.Br(), f"Investor recommendation: Sell"])
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)
