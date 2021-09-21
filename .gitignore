@@ -8,7 +8,8 @@ __pycache__/
 *.spec
 pip-log.txt
 pip-delete-this-directory.txt
-data/
+data/*
 .idea/*
 *logs*
+notebooks/*
 
