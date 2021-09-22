@@ -9,11 +9,14 @@ from dash import dash_table
 from dash.dependencies import Input, Output, State
 
 from Firm import Firm
+from get_financial_markets import get_financial_markets
 from utils.logger import get_logger
 from config import investor_threshold
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+financial_markets = get_financial_markets()
 
 logger = get_logger(__name__)
 
@@ -25,14 +28,18 @@ colors = {
 app.layout = dbc.Container(html.Div(
     children=[
         html.H1(children='The Value Screener'),
-        html.Div(children=(['''
-                            Choose a firm to asses
-                        ''',
+        html.Div(children=([html.P('''
+                            Choose a firm to asses:
+                        ''', style={'font-size': '15px', 'fontWeight': 'bold'}),
+                            # html.Br(),
+                            dcc.Dropdown(id='market-dropdown',
+                                         options=[{'label': key, 'value': val} for key, val in financial_markets.items()],
+                                         placeholder="Choose the firm's market")])),
                             html.Br(),
                             dcc.Input(placeholder="Insert the firm's ticker", style={'Align': 'cen'},
                                       id='ticker-input', required=True, type='text'),
-                            dcc.Input(placeholder="Insert the firm's market (for US, insert 'us')",
-                                      id='market-input', required=True, type='text')])),
+                            html.Br(),
+                            html.Br(),
         dbc.Button(
             "Generate report",
             color="primary",
@@ -65,8 +72,7 @@ app.layout = dbc.Container(html.Div(
     Output("firm-report", "data"),
     Input("button", "n_clicks"),
     State("ticker-input", "value"),
-    State("market-input", "value")
-
+    State("market-dropdown", "value")
 )
 def get_full_report(n_clicks, ticker_input, market_input):
     if n_clicks == 0:
