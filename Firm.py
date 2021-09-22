@@ -26,11 +26,9 @@ class Firm:
         The firm's ticker
     market: str
         The market where the firm is traded
-    read_data_dir: str (default=None)
-        A path from which the data will be read. Use this argument in case that you already read the data from Simfin's
-        API, and have it locally stored.
-    write_data_dir: str (default='data')
-        A path to a directory where the data from Simfin's API will be written to once downloaded.
+    data_dir: str (default='data')
+        A path of a directory where the data from Simfin's API will be written to once downloaded. In the next calls,
+        the data will be read from this path instead of an API call
 
     Methods
     ---------
@@ -40,15 +38,14 @@ class Firm:
 
 
     """
-    def __init__(self, ticker: str, market: str='us', read_data_dir=None, write_data_dir='data'):
+    def __init__(self, ticker: str, market: str='us', data_dir='data'):
         self.ticker = ticker
         self.market = market
-        self.read_data_dir = read_data_dir
-        self.write_data_dir = write_data_dir
-        self.income = get_financial_report('income', ticker, market, read_data_dir, write_data_dir)
-        self.balance = get_financial_report('balance', ticker, market, read_data_dir, write_data_dir)
-        self.cash_flow = get_financial_report('cashflow', ticker, market, read_data_dir, write_data_dir)
-        self.curr_share_data = get_financial_report('shareprices', ticker, market, read_data_dir, write_data_dir, variant='latest')
+        self.data_dir = data_dir
+        self.income = get_financial_report('income', ticker, market, data_dir)
+        self.balance = get_financial_report('balance', ticker, market, data_dir)
+        self.cash_flow = get_financial_report('cashflow', ticker, market, data_dir)
+        self.curr_share_data = get_financial_report('shareprices', ticker, market, data_dir, variant='latest')
 
     def get_latest_report_year(self, report_kind: str):
         if report_kind not in ['income', 'balance', 'cash_flow']:
@@ -398,9 +395,3 @@ class Firm:
         summary_df = pd.DataFrame(df_list)
         summary_df = self.summarize_investor_test(summary_df)
         return summary_df
-
-
-if __name__ == '__main__':
-    apple = Firm(ticker='AAPL', market='us', read_data_dir='data')
-    df = apple.generate_firm_report()
-    print("blah")

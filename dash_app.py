@@ -78,7 +78,7 @@ def get_full_report(n_clicks, ticker_input, market_input):
     if n_clicks == 0:
         return None
     else:
-        firm = Firm(ticker=ticker_input, market=market_input, read_data_dir='data')
+        firm = Firm(ticker=ticker_input, market=market_input)
         report_df = firm.generate_firm_report()
         json_df = report_df.to_json()
         return json_df
