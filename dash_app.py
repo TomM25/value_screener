@@ -23,9 +23,9 @@ colors = {
 }
 
 app.layout = dbc.Container(html.Div(
-                      children=[
-                        html.H1(children='The Value Screener'),
-                        html.Div(children= (['''
+    children=[
+        html.H1(children='The Value Screener'),
+        html.Div(children=(['''
                             Choose a firm to asses
                         ''',
                             html.Br(),
@@ -33,31 +33,31 @@ app.layout = dbc.Container(html.Div(
                                       id='ticker-input', required=True, type='text'),
                             dcc.Input(placeholder="Insert the firm's market (for US, insert 'us')",
                                       id='market-input', required=True, type='text')])),
-                            dbc.Button(
-                                        "Generate report",
-                                        color="primary",
-                                        block=True,
-                                        id="button",
-                                        className="mb-3",
-                                        n_clicks=0
-                                    ),
-                            dbc.Tabs(
-                                        [
-                                            dbc.Tab(label="Benjamin Graham", tab_id="Benjamin Graham"),
-                                            dbc.Tab(label="Warren Buffet", tab_id="Warren Buffet"),
-                                            dbc.Tab(label="Peter Lynch", tab_id="Peter Lynch"),
-                                            dbc.Tab(label="James P. O'shaughnessy", tab_id="James P. O'shaughnessy")
-                                        ],
-                                        id="tabs",
-                                        active_tab="Benjamin Graham"
-                                    ),
-                        html.Div(id="tab-image", className="p-4"),
-                          html.Div(id="tab-content", className="p-4"),
-                          html.Div(id="tab-summary", className="p-4", style={'margin': 'auto', 'text-align': 'center',
-                                                                             'font-size': '30px'}),
-                          dcc.Store(id="firm-report")
+        dbc.Button(
+            "Generate report",
+            color="primary",
+            block=True,
+            id="button",
+            className="mb-3",
+            n_clicks=0
+        ),
+        dbc.Tabs(
+            [
+                dbc.Tab(label="Benjamin Graham", tab_id="Benjamin Graham"),
+                dbc.Tab(label="Warren Buffet", tab_id="Warren Buffet"),
+                dbc.Tab(label="Peter Lynch", tab_id="Peter Lynch"),
+                dbc.Tab(label="James P. O'shaughnessy", tab_id="James P. O'shaughnessy")
+            ],
+            id="tabs",
+            active_tab="Benjamin Graham"
+        ),
+        html.Div(id="tab-image", className="p-4"),
+        html.Div(id="tab-content", className="p-4"),
+        html.Div(id="tab-summary", className="p-4", style={'margin': 'auto', 'text-align': 'center',
+                                                           'font-size': '30px', 'font-family': 'sans-serif'}),
+        dcc.Store(id="firm-report")
 
-]
+    ]
 ))
 
 
@@ -91,12 +91,32 @@ def render_investor_report(investor, firm_report):
         report_df = pd.DataFrame.from_dict(report_json)
         investor_df = report_df[report_df['investor'] == investor]
         investor_df['related_values'] = investor_df['related_values'].astype('str')
+        investor_df['test_passed'] = investor_df['test_passed'].astype('str')
         investor_df.drop(columns=['investor', 'test_id', 'investor_test_pass_rate', 'investor_recommendation'],
                          inplace=True)
         investor_df.rename(columns={'description': 'Test description', 'test_passed': 'Test passed?',
                                     'related_values': 'Related values'}, inplace=True)
         return dash_table.DataTable(id="table", columns=[{"name": i, "id": i} for i in investor_df.columns],
-                                    data=investor_df.to_dict('records'), style_cell={'text-align': 'left'})
+                                    data=investor_df.to_dict('records'), style_cell={'text-align': 'left'},
+                                    style_data_conditional=[
+                                        {
+                                            'if': {
+                                                'filter_query': "{Test passed?} eq 'True'",
+                                                'column_id': 'Test passed?'
+                                            },
+                                            'backgroundColor': 'green',
+                                            'fontWeight': 'bold'
+                                        },
+                                        {
+                                            'if': {
+                                                'filter_query': "{Test passed?} eq 'False'",
+                                                'column_id': 'Test passed?'
+                                            },
+                                            'backgroundColor': 'red',
+                                            'fontWeight': 'bold'
+                                        }
+                                    ]
+                                    )
 
 
 @app.callback(
@@ -113,13 +133,13 @@ def summarize_investor_tests(data_table, firm_report, investor):
         investor_pass_rate = investor_df['investor_test_pass_rate'].values[0]
         investor_thresholds = investor_threshold[investor]
         if investor_pass_rate > investor_thresholds['buy']:
-            return html.P([f"Investor tests pass rate: {investor_pass_rate}", html.Br(), f"Investor recommendation: Buy"])
+            return html.P([f"Investor's tests pass rate: {investor_pass_rate}", html.Br(), f"Investor's recommendation: Buy"])
 
         elif investor_pass_rate > investor_thresholds['hold']:
-            return html.P([f"Investor tests pass rate: {investor_pass_rate}", html.Br(), f"Investor recommendation: Hold"])
+            return html.P([f"Investor's tests pass rate: {round(investor_pass_rate,2)}", html.Br(), f"Investor's recommendation: Hold"])
 
         else:
-            return html.P([f"Investor tests pass rate: {investor_pass_rate}", html.Br(), f"Investor recommendation: Sell"])
+            return html.P([f"Investor's tests pass rate: {round(investor_pass_rate,2)}", html.Br(), f"Investor's recommendation: Sell"])
 
 
 @app.callback(
