@@ -1,4 +1,5 @@
 import json
+import base64
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -50,8 +51,8 @@ app.layout = dbc.Container(html.Div(
                                         id="tabs",
                                         active_tab="Benjamin Graham"
                                     ),
+                        html.Div(id="tab-image", className="p-4"),
                           html.Div(id="tab-content", className="p-4"),
-                          html.Div(id="tab-image", className="p-4", style={'margin': 'auto'}),
                           html.Div(id="tab-summary", className="p-4", style={'margin': 'auto', 'text-align': 'center',
                                                                              'font-size': '30px'}),
                           dcc.Store(id="firm-report")
@@ -129,8 +130,11 @@ def summarize_investor_tests(data_table, firm_report, investor):
 def render_investor_picture(investor, firm_report):
     if not pd.isnull(firm_report):
         investor_pic_path = f"dash_resources//{investor}.png"
+        encoded_image = base64.b64encode(open(investor_pic_path, 'rb').read())
         logger.info("Rendering investor image")
-        return html.Img(src=investor_pic_path)
+        return html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()), style={'margin-left': 'auto',
+                                                                                              'margin-right': 'auto',
+                                                                                              'display': 'block'})
 
 
 if __name__ == '__main__':
