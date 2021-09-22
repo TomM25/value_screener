@@ -89,7 +89,7 @@ def render_investor_report(investor, firm_report):
         report_df = pd.DataFrame.from_dict(report_json)
         investor_df = report_df[report_df['investor'] == investor]
         investor_df['related_values'] = investor_df['related_values'].astype('str')
-        investor_df.drop(columns=['investor', 'test_name', 'investor_test_pass_rate', 'investor_recommendation'],
+        investor_df.drop(columns=['investor', 'test_id', 'investor_test_pass_rate', 'investor_recommendation'],
                          inplace=True)
         investor_df.rename(columns={'description': 'Test description', 'test_passed': 'Test passed?',
                                     'related_values': 'Related values'}, inplace=True)

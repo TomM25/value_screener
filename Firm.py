@@ -384,7 +384,7 @@ class Firm:
                 test_func_name = '_'.join(test.split()) + '_test'
                 test_func = getattr(self, test_func_name)
                 test_passed = test_func()
-                test_dict.update({'investor': investor, 'test_name': test, 'description': display_tests[investor][test]['description'],
+                test_dict.update({'investor': investor, 'test_id': test, 'description': display_tests[investor][test]['description'],
                                   'test_passed': test_passed})
                 for idx, display_func in enumerate(display_tests[investor][test]['display_functions']):
                     test_disp_func = getattr(self, display_func)
@@ -393,8 +393,6 @@ class Firm:
                         disp_func_val = list(disp_func_val)
                     desc_dict.update({display_tests[investor][test]['display_functions_desc'][
                                           idx]: self.format_related_values(disp_func_val)})
-                    # for key, val in desc_dict.items():
-                    #     desc_dict[key] = self.format_related_values(val)
                 test_dict.update({'related_values': desc_dict})
                 df_list.append(test_dict)
         summary_df = pd.DataFrame(df_list)
