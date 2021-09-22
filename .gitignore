@@ -12,4 +12,5 @@ data/*
 .idea/*
 *logs*
 notebooks/*
+*.ipynb
 

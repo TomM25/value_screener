@@ -26,11 +26,9 @@ class Firm:
         The firm's ticker
     market: str
         The market where the firm is traded
-    read_data_dir: str (default=None)
-        A path from which the data will be read. Use this argument in case that you already read the data from Simfin's
-        API, and have it locally stored.
-    write_data_dir: str (default='data')
-        A path to a directory where the data from Simfin's API will be written to once downloaded.
+    data_dir: str (default='data')
+        A path of a directory where the data from Simfin's API will be written to once downloaded. In the next calls,
+        the data will be read from this path instead of an API call
 
     Methods
     ---------
@@ -40,15 +38,14 @@ class Firm:
 
 
     """
-    def __init__(self, ticker: str, market: str='us', read_data_dir=None, write_data_dir='data'):
+    def __init__(self, ticker: str, market: str='us', data_dir='data'):
         self.ticker = ticker
         self.market = market
-        self.read_data_dir = read_data_dir
-        self.write_data_dir = write_data_dir
-        self.income = get_financial_report('income', ticker, market, read_data_dir, write_data_dir)
-        self.balance = get_financial_report('balance', ticker, market, read_data_dir, write_data_dir)
-        self.cash_flow = get_financial_report('cashflow', ticker, market, read_data_dir, write_data_dir)
-        self.curr_share_data = get_financial_report('shareprices', ticker, market, read_data_dir, write_data_dir, variant='latest')
+        self.data_dir = data_dir
+        self.income = get_financial_report('income', ticker, market, data_dir)
+        self.balance = get_financial_report('balance', ticker, market, data_dir)
+        self.cash_flow = get_financial_report('cashflow', ticker, market, data_dir)
+        self.curr_share_data = get_financial_report('shareprices', ticker, market, data_dir, variant='latest')
 
     def get_latest_report_year(self, report_kind: str):
         if report_kind not in ['income', 'balance', 'cash_flow']:
@@ -83,7 +80,6 @@ class Firm:
         return lowest_profit > 0
 
     def consistent_profits_growth_test(self, years_back: int=5):
-        # Was the profit growth constantly positive during the time period?
         profits = self.get_last_profits(years_back=years_back)
         for index, profit in enumerate(profits[:-1]):
             if (profit < 0) or (profits[index + 1] > profit):
@@ -151,7 +147,6 @@ class Firm:
         return total_assets / shareholders_equity
 
     def equity_earnings_test(self, threshold: float=22.0):
-        # Is the product of the earnings multiplier and the equity multiplier lower than a defined threshold
         return (self.get_earnings_multiplier() * self.get_equity_multiplier()) < threshold
 
     def get_working_capital(self, years_back: int=1):
@@ -332,6 +327,24 @@ class Firm:
         return self.get_market_cap_revenue() < self.get_market_cap_revenue_entire_market()
 
     @staticmethod
+    def format_numbers(num):
+        if num > 1000000:
+            num_millions = int(round((num / 1000000)))
+            num_millions_str = "{:,}".format(num_millions)
+            return f"{num_millions_str}M"
+        elif isinstance(num, float):
+            return round(num, 3)
+        else:
+            return num
+
+    @staticmethod
+    def format_related_values(val):
+        if isinstance(val, np.ndarray) or isinstance(val, list):
+            return [Firm.format_numbers(num) for num in val]
+        else:
+            return Firm.format_numbers(val)
+
+    @staticmethod
     def check_investor_threshold(value, investor: str):
         if value > investor_threshold[investor]['buy']:
             return 'buy'
@@ -368,14 +381,15 @@ class Firm:
                 test_func_name = '_'.join(test.split()) + '_test'
                 test_func = getattr(self, test_func_name)
                 test_passed = test_func()
-                test_dict.update({'investor': investor, 'test_name': test, 'description': display_tests[investor][test]['description'],
+                test_dict.update({'investor': investor, 'test_id': test, 'description': display_tests[investor][test]['description'],
                                   'test_passed': test_passed})
                 for idx, display_func in enumerate(display_tests[investor][test]['display_functions']):
                     test_disp_func = getattr(self, display_func)
                     disp_func_val = test_disp_func()
                     if isinstance(disp_func_val, np.ndarray):
                         disp_func_val = list(disp_func_val)
-                    desc_dict.update({display_tests[investor][test]['display_functions_desc'][idx]: disp_func_val})
+                    desc_dict.update({display_tests[investor][test]['display_functions_desc'][
+                                          idx]: self.format_related_values(disp_func_val)})
                 test_dict.update({'related_values': desc_dict})
                 df_list.append(test_dict)
         summary_df = pd.DataFrame(df_list)
