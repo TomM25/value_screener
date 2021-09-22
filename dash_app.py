@@ -164,4 +164,4 @@ def render_investor_picture(investor, firm_report):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
