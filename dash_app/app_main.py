@@ -51,6 +51,7 @@ app.layout = dbc.Container(html.Div(
                                         active_tab="Benjamin Graham"
                                     ),
                           html.Div(id="tab-content", className="p-4"),
+                          html.Div(id="tab-image", className="p-4", style={'margin': 'auto'}),
                           html.Div(id="tab-summary", className="p-4", style={'margin': 'auto', 'text-align': 'center',
                                                                              'font-size': '30px'}),
                           dcc.Store(id="firm-report")
@@ -82,8 +83,8 @@ def get_full_report(n_clicks, ticker_input, market_input):
     Input("firm-report", "data")
     )
 def render_investor_report(investor, firm_report):
-    logger.info(f"Rendering {investor}'s tab")
     if not pd.isnull(investor) and not pd.isnull(firm_report):
+        logger.info(f"Rendering {investor}'s tab")
         logger.info(f"Fetching {investor}'s report")
         report_json = json.loads(firm_report)
         report_df = pd.DataFrame.from_dict(report_json)
@@ -105,6 +106,7 @@ def render_investor_report(investor, firm_report):
     )
 def summarize_investor_tests(data_table, firm_report, investor):
     if not pd.isnull(data_table) and not pd.isnull(firm_report):
+        logger.info(f"Rendering {investor}'s recommendation")
         report_df = pd.DataFrame.from_dict(json.loads(firm_report))
         investor_df = report_df[report_df['investor'] == investor]
         investor_pass_rate = investor_df['investor_test_pass_rate'].values[0]
@@ -117,6 +119,18 @@ def summarize_investor_tests(data_table, firm_report, investor):
 
         else:
             return html.P([f"Investor tests pass rate: {investor_pass_rate}", html.Br(), f"Investor recommendation: Sell"])
+
+
+@app.callback(
+    Output("tab-image", "children"),
+    Input("tabs", "active_tab"),
+    Input("firm-report", "data")
+)
+def render_investor_picture(investor, firm_report):
+    if not pd.isnull(firm_report):
+        investor_pic_path = f"dash_resources//{investor}.png"
+        logger.info("Rendering investor image")
+        return html.Img(src=investor_pic_path)
 
 
 if __name__ == '__main__':
