@@ -7,9 +7,9 @@ display_tests = {
             'display_functions_desc': ['Last revenue']
         },
         'profits_growth': {
-            'description': '30% profits growth and not negative in the last 5 years',
-            'display_functions': ['get_last_profits', 'get_4_years_profits_growth'],
-            'display_functions_desc': ['5 last profits', 'Profits growth last four years']
+            'description': '30% profit growth over a rolling 2-year period and not negative in the last 5 years',
+            'display_functions': ['get_last_profits', 'get_profits_growth_rolling_2_years'],
+            'display_functions_desc': ['5 last profits', 'Profits growth over a rolling 2-year period']
         },
         'earnings_multiplier': {
             'description': 'Earnings multiplier < 15',
@@ -100,7 +100,7 @@ display_tests = {
             'display_functions_desc': ["Last 5 years' average profits growth rate", "Last revenue"]
         }
     },
-    "James P. O'shaughnessy": {
+    "James P. O'Shaughnessy": {
         'market_cap': {
             'description': 'Market cap > 150M',
             'display_functions': ['get_market_cap'],
@@ -127,4 +127,4 @@ display_tests = {
 investor_threshold = {'Benjamin Graham': {'buy': 0.82, 'hold': 0.65},
                       'Warren Buffet': {'buy': 0.82, 'hold': 0.65},
                       'Peter Lynch': {'buy': 0.82, 'hold': 0.65},
-                      "James P. O'shaughnessy": {'buy': 0.74, 'hold': 0.49}}
+                      "James P. O'Shaughnessy": {'buy': 0.74, 'hold': 0.49}}

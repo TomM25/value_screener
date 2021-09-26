@@ -53,7 +53,7 @@ app.layout = dbc.Container(html.Div(
                 dbc.Tab(label="Benjamin Graham", tab_id="Benjamin Graham"),
                 dbc.Tab(label="Warren Buffet", tab_id="Warren Buffet"),
                 dbc.Tab(label="Peter Lynch", tab_id="Peter Lynch"),
-                dbc.Tab(label="James P. O'shaughnessy", tab_id="James P. O'shaughnessy")
+                dbc.Tab(label="James P. O'Shaughnessy", tab_id="James P. O'Shaughnessy")
             ],
             id="tabs",
             active_tab="Benjamin Graham"
