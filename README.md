@@ -1,35 +1,35 @@
-# value_screener
+# The Value Screener
 ## General
-This project was created out of personal interest in a data oriented approach of the stock market. The goal was to create
-    an investing recommendation tool designed for our personal needs.
+This project stemmed from a personal interest in a data-oriented approach of valuation of firms in the stock market. The
+    goal was to create an investment recommendation tool that is tailored for our personal needs.
 
 ## Overview
-This module uses the SimFin Python API to retrieve firms' last annual financial
+This module uses SimFin Python API to retrieve firms' last annual financial
     statements (income statement, balance sheet and cash flow statement) and some basic data about the stock price. Using 
-    this data, it allows the calculation of financial metrics and relations, to help decide whether the firm's stock
-    should be bought, sold, or held. To summarize the calculations, it allows generating a conclusive report. The metrics
+    this data, it calculates financial metrics and relations to help in the decision-making of whether the firm's stock
+    should be bought, sold, or held. To summarize the calculations, a conclusive report is generated. The metrics
     and relations in the report are all based on benchmarks that were defined by famous investors: Benjamin Graham,
-    Warren Buffet, Peter Lynch and James P O'shaughnessy.
-<br>**Important note #1** - The SimFin API's free version supplies financial reports with a delay of 1 year.
+    Warren Buffet, Peter Lynch and James P. O'Shaughnessy.
+<br>**Important note #1** - SimFin API's free version supplies financial reports with a delay of one year.
     Using this project with the free API version might return false or stale results.
-<br>**Important note #2** - For now, this module only analyzes annual reports. In the future, we might add features to
-    support analyzing the quarterly reports.
-<br>**Important note #3** - The markets that are currently (September 2021) supported by the SimFin API: US('us'), Canada
+<br>**Important note #2** - For now, this module only analyzes annual reports. In the future, we may add features to
+    support the analysis of quarterly reports.
+<br>**Important note #3** - The markets that are currently (September 2021) supported by SimFin API are: US('us'), Canada
     ('ca'), China ('cn'), Germany ('de'), Singapore('sg'), Italy ('it'). Before using this project, make sure that the
     stock in which you are interested is included in the SimFin dataset.
 
 ## Usage
-The Firm class holds all the attributes and methods required for the analysis.
-    An instance of this class represents a publicly traded firm. Once instantiated, the object reads the firm's last 
-    annual financial statements (income statement, balance sheet and cash flow statement), and some basic data about the
-    firm's stock value from Simfin's API. The API key should be stored in an environment variable named SIMFIN_KEY.
-<br>**To analyze a firm, we recommend using the generate_firm_report method of the Firm class**. All the rest of the methods in this
+The Firm class holds all the attributes and methods required for the analysis. An instance of this class represents a
+    publicly traded firm. Once instantiated, the object reads the firm's last annual financial statements (income statement,
+    balance sheet and cash flow statement), and some basic data about the firm's stock value, from Simfin's API.
+    The API key should be stored in an environment variable named SIMFIN_KEY.
+<br>**To analyze a firm, we recommend using the generate_firm_report method of the Firm class**. All other methods in this
     class are being called under the hood to create the report. The generated report is a Python Pandas DataFrame object.
     Each row in the dataframe is a benchmark used by one of the famous investors to asses whether a stock is an
     attractive investment. The dataframe contains a written explanation on the benchmark, all the related values that
-    were included in the calculation, and a bottom-line recommendation by the famous investor's theory.
-<br>In case that you want to use some of the other methods separately, note the naming conventions:
-<br>1. Methods that start with the word 'get' are used to calculate a ratio or a metric.
+    were included in the calculation, and a bottom-line recommendation according to the famous investor's theory.
+<br>In the case that you want to use another method separately, note the naming conventions:
+<br>1. Methods that start with the word 'get' are used to calculate a ratio or a metric;
 <br>2. Methods that end with the word 'test' are used to check if the stock is attractive according to a specific benchmark,
     and will return a boolean value.
 
@@ -61,17 +61,17 @@ The generated report:
 | 15 | Peter Lynch            | inventories_revenue_growth            | Inventories/Revenue growth this year < 0.05                                                                                                                                                                              | True          | {'Inventories to revenue ratios of last 2 years': [0.132, 0.13], 'Inventories to revenue ratio growth': 0.013} |                  0.833333 | buy                       |
 | 16 | Peter Lynch            | positive_last_two_profits             | Last two years profits > 0                                                                                                                                                                                               | True          | {"Last two years' profits": ['1,071M', '316M']}                                                                |                  0.833333 | buy                       |
 | 17 | Peter Lynch            | lynch_profit_revenue                  | ((5 years average profit growth > 0.2) AND (Revenue > 1B)) Or ((5 years' profit growth > 0) AND (Revenue > 1.9B))                                                                                                        | True          | {"Last 5 years' average profits growth rate": 0.621, 'Last revenue': '5,163M'}                                 |                  0.833333 | buy                       |
-| 18 | James P. O'shaughnessy | market_cap                            | Market cap > 150M                                                                                                                                                                                                        | True          | {'Market cap': '52,456M'}                                                                                      |                  0.25     | sell                      |
-| 19 | James P. O'shaughnessy | market_cap_revenue                    | Market cap/Revenue < 1.5                                                                                                                                                                                                 | False         | {'Market cap': '52,456M', 'Revenue': '5,163M', 'Market cap to revenue ratio': 10.16}                           |                  0.25     | sell                      |
-| 20 | James P. O'shaughnessy | consistent_profits_growth             | EPS is constantly growing in the last 5 years, and is not negative                                                                                                                                                       | False         | {'Last 5 years common profit': ['1,071M', '316M', '684M', '462M', '401M']}                                     |                  0.25     | sell                      |
-| 21 | James P. O'shaughnessy | market_cap_revenue_market_comparison  | (Market cap/Revenue) < (Market's market cap/Revenue)                                                                                                                                                                     | False         | {'Market cap to revenue ratio': 10.16, 'Market cap to revenue entire market ratio': 2.28}                      |                  0.25     | sell                      |
+| 18 | James P. O'Shaughnessy | market_cap                            | Market cap > 150M                                                                                                                                                                                                        | True          | {'Market cap': '52,456M'}                                                                                      |                  0.25     | sell                      |
+| 19 | James P. O'Shaughnessy | market_cap_revenue                    | Market cap/Revenue < 1.5                                                                                                                                                                                                 | False         | {'Market cap': '52,456M', 'Revenue': '5,163M', 'Market cap to revenue ratio': 10.16}                           |                  0.25     | sell                      |
+| 20 | James P. O'Shaughnessy | consistent_profits_growth             | EPS is constantly growing in the last 5 years, and is not negative                                                                                                                                                       | False         | {'Last 5 years common profit': ['1,071M', '316M', '684M', '462M', '401M']}                                     |                  0.25     | sell                      |
+| 21 | James P. O'Shaughnessy | market_cap_revenue_market_comparison  | (Market cap/Revenue) < (Market's market cap/Revenue)                                                                                                                                                                     | False         | {'Market cap to revenue ratio': 10.16, 'Market cap to revenue entire market ratio': 2.28}                      |                  0.25     | sell                      |
 
-Once instantiating the class, the whole financial reports dataset (includes all firms) is being read to your local disk.
-    In the next time you call it, the data will be read from disk instead of an API call.
+Once instantiating the class, the entire financial reports dataset (includes all firms in the chosen market) is read to
+    your local disk. The next time it is called, the data will be read from the disk instead of an API call.
 
 ## Plotly Dash application
-In order to simplify the usage, we created a very basic application using Plotly Dash. All you have to do is insert the
-    firm's ticker and choose the appropriate market.
+In order to simplify the usage, we created a very basic application using Plotly Dash. Simply begin by choosing a market
+    and then insert the appropriate firm's ticker.
 <br><br>
     ![landing_screen](dash_resources/app_screenshot1.PNG)
 <br><br>

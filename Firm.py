@@ -86,8 +86,7 @@ class Firm:
                 return False
         return True
 
-    def get_4_years_profits_growth(self):
-        # TODO verify computation with Yotam
+    def get_profits_growth_rolling_2_years(self):
         profits = self.get_last_profits(years_back=5)
         return ((profits[0] + profits[-1])/(profits[-2] + profits[-3])) - 1
 
@@ -107,7 +106,7 @@ class Firm:
     def profits_growth_test(self, threshold: float=0.3):
         if not self.consistent_profits_growth_test(years_back=5):
             return False
-        return self.get_4_years_profits_growth() > threshold
+        return self.get_profits_growth_rolling_2_years() > threshold
 
     def get_eps(self):
         shares_num = self.curr_share_data['Shares Outstanding'].values[0]
