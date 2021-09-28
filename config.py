@@ -115,11 +115,6 @@ display_tests = {
             'description': 'EPS is constantly growing in the last 5 years, and is not negative',
             'display_functions': ['get_last_profits'],
             'display_functions_desc': ['Last 5 years common profit']
-        },
-        'market_cap_revenue_market_comparison': {
-            'description': "(Market cap/Revenue) < (Market's market cap/Revenue)",
-            'display_functions': ['get_market_cap_revenue', 'get_market_cap_revenue_entire_market'],
-            'display_functions_desc': ['Market cap to revenue ratio', 'Market cap to revenue entire market ratio']
         }
     }
 }

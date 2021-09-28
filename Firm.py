@@ -318,13 +318,6 @@ class Firm:
     def market_cap_revenue_test(self, threshold: float=1.5):
         return self.get_market_cap_revenue() < threshold
 
-    def get_market_cap_revenue_entire_market(self):
-        # TODO ask Yotam where to find this data and replace the constant
-        return 2.28
-
-    def market_cap_revenue_market_comparison_test(self):
-        return self.get_market_cap_revenue() < self.get_market_cap_revenue_entire_market()
-
     @staticmethod
     def format_numbers(num):
         if num > 1000000:
