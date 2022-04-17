@@ -5,7 +5,7 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-sf.set_api_key(api_key=os.environ.get('SIMFIN_KEY', 'free'))
+sf.set_api_key(api_key=os.getenv('SIMFIN_KEY'))
 
 
 def get_financial_markets(data_dir: str='data'):
